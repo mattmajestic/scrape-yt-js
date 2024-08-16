@@ -10,3 +10,5 @@ node scrape.js
 ```
 
 After you have run, you will see `youtube_featured.png` 🖼️ & `network_requests.txt` 📝
+
+![Description of the diagram](./diagram.png)
