@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs');
 
 (async () => {
+  // Launch Puppeteer browser
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
 
@@ -12,26 +14,30 @@ const puppeteer = require('puppeteer');
     networkRequests.push(request.url());
   });
 
-  // Go to your YouTube channel page
-  // this would be your site anime-site.fr
-  await page.goto('https://www.youtube.com/@majesticcoding/videos');
+  try {
+    // Go to the YouTube channel page (replace with your site)
+    await page.goto('https://www.youtube.com/@majesticcoding/videos', { waitUntil: 'networkidle2' });
 
-  // Wait for the page to load and find the video thumbnail
-  await page.waitForSelector('a#thumbnail');
+    // Wait for the video thumbnail to appear
+    await page.waitForSelector('a#thumbnail', { visible: true, timeout: 10000 });
 
-  // Click the featured video
-  await page.click('a#thumbnail');
+    // Click the first video thumbnail
+    await page.click('a#thumbnail');
 
-  // Wait for 10 seconds to allow network activity (video loading, etc.)
-  await new Promise(r => setTimeout(r, 10000));
+    // Wait for 10 seconds using a Promise with setTimeout
+    await new Promise(resolve => setTimeout(resolve, 10000));
 
-  // Log all network requests captured
-  console.log('Network Requests during video click:');
-  networkRequests.forEach(url => console.log(url));
+    // Log all network requests captured
+    console.log('Network Requests during video click:');
+    networkRequests.forEach(url => console.log(url));
 
-  // Optionally, you can save the list of URLs to a file
-  const fs = require('fs');
-  fs.writeFileSync('network_requests.txt', networkRequests.join('\n'));
+    // Optionally, you can save the list of URLs to a file
+    fs.writeFileSync('network_requests.txt', networkRequests.join('\n'));
 
-  await browser.close();
+  } catch (error) {
+    console.error('Error occurred:', error);
+  } finally {
+    // Ensure the browser is closed even if an error occurs
+    await browser.close();
+  }
 })();
